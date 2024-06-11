@@ -11,3 +11,6 @@ A notebook created to analyze the S&P-500 stock market index throughout the year
 
 -AlphaVantageAPI:
 A notebook which uses the Alpha Vantage stock api to pull daily adjusted stock market values for a selection of companies, saves them onto a dataframe, and uploads them to a BigQuery Cloud database. The info it pulls is the daily open, close, high, low, and volume traded. 
+
+-Numpy Neural Network:
+A python program which utilizes the numpy library to form a simple neural network with forward and back propagation
