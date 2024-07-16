@@ -14,3 +14,6 @@ A notebook which uses the Alpha Vantage stock api to pull daily adjusted stock m
 
 -Numpy Neural Network:
 A python program which utilizes the numpy library to form a simple neural network with forward and back propagation
+
+-ECCC Weather Data Download Script:
+A script which I made to download the monthly weather data for Trenton Airport and Bellevile into a csv file for all the years both stations had existed.
