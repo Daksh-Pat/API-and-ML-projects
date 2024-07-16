@@ -1,85 +1,71 @@
-import numpy as np
+import pandas as pd
+import requests
+import os
+import csv
 
-#Eulers Activation function
-def activate(z):
-    activated = 1/(1+np.exp(z))
-    return activated
+#Function for getting data from ECCC using year and station_id
+def get_monthly_data(year,station_id):
+  #Create temporary dataframe which will return as an output of the function to appened to the main dataframe which will export to csv
+  df = pd.DataFrame(columns=['Longitude(x)','Latitude(y)','Station Name','Climate ID','Date/Time','Year','Month','Day','Data Quality','Max Temp (°C)','Max Temp Flag','Min Temp (°C)','Min Temp Flag','Mean Temp (°C)','Mean Temp Flag','Heat Deg Days (°C)','Heat Deg Days Flag','Cool Deg Days (°C)','Cool Deg Days Flag'])
 
-#Forward propagation using input, weights, biases, and activation function
-def forward(x,w,bias):
-    #Forms predicted array to fillout and return
-    y2=np.array([])
-    #For each value in the input it will multiple it with the weights and add final value it to y2
-    for y in range(len(x)):
-        xw = 0
-        for j in range(len(x)):
-            xw+=w[y][j]*x[y]
-        z=xw
-        y2=np.append(y2,z)
-    #Initial array is 1 by 3, this changes it so its transposed to 3 by 1
-    y2=np.reshape(y2,(len(x),1))
-    #Adds bias to the values of the predicted array
-    y2=y2+bias
-    #Applies Eulers activation function on predicted array and returns it
-    y2=activate(y2)
-    return y2
+  #Requests data from ECCC for station and year,
+  url = 
+  response = requests.get(url)
+  #Decodes csv using utf-8 format
+  data = response.content.decode('utf-8')
+  cr = csv.reader(data.splitlines(), delimiter=',')
 
-#Part of back propagation which re-adjusts the weights for each node based on output
-def calculate_weight(y2,y1,x,w):
-    #Calculates loss function of mean squared error to see how far off predicted is from actual
-    MSE=(y1-y2)**2
-    #Cost function calculates average loss across entire array
-    C=np.sum(MSE)*(1/len(MSE))
-    #Calcualtes rate of change with respect to the cost function vs predicted
-    Cy2=np.sum(y1-y2)*(2/len(y1-y2))
-    z=y2
-    #Calculates rate of changge with respect to the predicted values vs the activated input array
-    y2z=activate(z)*(1-activate(z))
-    #Activated input is the same as input
-    zw=x
-    #Multiplies rate of change with gradient of cost vs predicted, predicted vs activated input, and activated input vs input
-    Cw=Cy2*y2z*zw
-    #Modifies weights based on learning rate of 0.5 and rate of change with respect to the cost function vs weights
-    w=w-(0.5*Cw)
-    return w
+  #Appends data from csv from ECCC onto temporary dataframe
+  my_list = list(cr)
+  for row in my_list:
+      longitude = row[0]
+      latitude = row[1]
+      stn_name = row[2]
+      cl_id = row[3]
+      dt_tm = row[4]
+      yr = row[5]
+      mn = row[6]
+      dy = row[7]
+      dt_ql = row[8]
+      mx_tp = row[9]
+      mx_tp_fg = row[10]
+      mn_tp = row[11]
+      mn_tp_fg = row[12]
+      mean_tp = row[13]
+      mean_tp_flag = row[14]
+      hdd = row[15]
+      hdd_flag = row[16]
+      cdd = row[17]
+      cdd_flag = row[18]
+      df = df.append({"Longitude(x)":longitude,"Latitude(y)":latitude,"Station Name":stn_name,"Climate ID":cl_id,"Date/Time":dt_tm,"Year":yr,"Month":mn,"Day":dy,"Data Quality":dt_ql,"Max Temp (°C)":mx_tp,"Max Temp Flag":mx_tp_fg,"Min Temp (°C)":mn_tp,"Min Temp Flag":mn_tp_fg,"Mean Temp (°C)":mean_tp,"Mean Temp Flag":mean_tp_flag,"Heat Deg Days (°C)":hdd,"Heat Deg Days Flag":hdd_flag,"Cool Deg Days (°C)":cdd,"Cool Deg Days Flag":cdd_flag}, ignore_index=True)
 
-#Does the same thing as the first function but for the biases instead
-def calculate_bias(y2,y1,bias):
-    #Calculates loss function of mean squared error to see how far off predicted is from actual
-    MSE=(y1-y2)**2
-    #Cost function calculates average loss across entire array
-    C=np.sum(MSE)*(1/len(MSE))
-    #Calcualtes rate of change with respect to the cost function vs predicted
-    Cy2=np.sum(y1-y2)*(2/len(y1-y2))
-    z=y2
-    #Calculates rate of changge with respect to the predicted values vs the activated input array
-    y2z=activate(z)*(1-activate(z))
-    #Multiplies rate of change with gradient of cost vs predicted and predicted vs activated input
-    Cw=Cy2*y2z
-    #Modifies biass based on learning rate of 0.5 and rate of change with respect to the cost function vs weights
-    bias=bias-(0.5*Cw)
-    return bias
+  #Removes 1st row which is column names
+  df = df.iloc[1:]
+  #Returns dataframe to append to main dataframe
+  return df
 
-#Forms random numpy array for input, output, and weights
-x=np.random.rand(3,1)
-y=np.random.rand(3,1)
-w=np.random.rand(3,3)
-#Bias is default set to 1.0
-bias=1.0
-#Forms first output from forward propagation to commence training loop
-y2=forward(x,w,bias)
+#Function gets data for all years of station
+#Have to use 4 digit climate ID of station
+def all_station_data(year_start,year_end,station_id):
+  #Create temporary dataframe to return as function output
+  df_all = pd.DataFrame(columns=['Longitude(x)','Latitude(y)','Station Name','Climate ID','Date/Time','Year','Month','Day','Data Quality','Max Temp (°C)','Max Temp Flag','Min Temp (°C)','Min Temp Flag','Mean Temp (°C)','Mean Temp Flag','Heat Deg Days (°C)','Heat Deg Days Flag','Cool Deg Days (°C)','Cool Deg Days Flag'])
 
-#Loop changes weights and biases until output predicted matches the actual output
-while not (np.sum(y-y2))==0:
-    #Forward propagation
-    y2=forward(x,w,bias)
-    print(np.sum(y-y2))
-    #Back propagation
-    w=calculate_weight(y2,y,x,w)
-    bias=calculate_bias(y2,y,bias)
+  #Forms range of years from those in station
+  year_range=[year_start,year_end]
+  years=range(year_range[0],year_range[1]+1)
 
-#Printing out final predicted values and the weights used to get them
-y2=forward(x,w,bias)
-print(y)
-print(y2)
-print(w)
+  #Adds data for each month in each year in range to temporary dataframe
+  for year in years:
+    df_year = get_monthly_data(year,station_id)
+    df_all = df_all.append(df_year)
+
+  #Returns dataframe
+  return df_all
+
+#Getting all Trenton data and exporting to csv
+Trenton_A = all_station_data(1953,2024,5126)
+Trenton_A.to_csv("Trenton (5126) Data.csv", encoding='utf-8')
+
+#Getting all Belleville data and exporting to csv
+Belleville= all_station_data(1866,2024,4859)
+Belleville.to_csv("Belleville (4859) Data.csv", encoding='utf-8')
