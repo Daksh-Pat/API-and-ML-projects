@@ -1,6 +1,6 @@
-# API-and-ML-projects
+# API-and-ML Practice projects
 
-This is a collection of projects related to using APIs and Machine Learning models
+This is a collection of projects related to using APIs and Machine Learning models for practicing how to use them
 
 # Contents
 -OpenAQ Jupyter notebook: 
