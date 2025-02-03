@@ -17,3 +17,6 @@ A python program which utilizes the numpy library to form a simple neural networ
 
 -ECCC Weather Data Download Script:
 A script which I made to download the monthly weather data for Trenton Airport and Bellevile into a csv file for all the years both stations had existed.
+
+-Energy ETL Pipeline:
+Project for combining multiple datasets for Energy production and consumption into one singular dataset. The dataset is then exported to a csv as well as copied to a cloud database in BigQuery
